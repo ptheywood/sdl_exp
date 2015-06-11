@@ -35,19 +35,21 @@ public:
 	void toggleFullScreen();
 	void toggleMouseMode();
 	void resizeWindow();
+	void resizeWindow_2();
+
 	void handleMouseMove(int x, int y);
 	bool isFullscreen();
 	void updateFPS();
 
 
 private:
-	SDL_Window* window;
+	SDL_Window* window, *window_2;
 	SDL_GLContext context;
-	Camera camera;
+	Camera camera, camera_2;
 	Shaders* vechShaders = nullptr;
 	Shaders* envShaders = nullptr;
 	VisualisationScene* scene;
-	glm::mat4 frustum;
+	glm::mat4 frustum, frustum_2;
 
 	bool isInitialised;
 	bool quit;
@@ -55,6 +57,7 @@ private:
 	char* windowTitle;
 	int windowWidth;
 	int windowHeight;
+	bool window0Active;
 	
 	SDL_Rect windowedBounds;
 

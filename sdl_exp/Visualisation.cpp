@@ -18,7 +18,7 @@
 #define DELTA_ASCEND 0.1
 #define ONE_SECOND_MS 1000
 
-Visualisation::Visualisation(char* windowTitle, int windowWidth, int windowHeight) : isInitialised(false), quit(false){
+Visualisation::Visualisation(char* windowTitle, int windowWidth, int windowHeight) : isInitialised(false), quit(false), window0Active(true){
 	this->windowTitle = windowTitle;
 	this->windowWidth = windowWidth;
 	this->windowHeight = windowHeight;
@@ -26,6 +26,7 @@ Visualisation::Visualisation(char* windowTitle, int windowWidth, int windowHeigh
 	double theta = math_helper::toRadians(135);
 	double phi = math_helper::toRadians(-35);
 	this->camera = Camera(theta, phi, 10, 10, 10);
+	this->camera_2 = Camera(math_helper::toRadians(-90), phi, 12.5, 10, -15);
 
 	this->isInitialised = this->init();
 }
@@ -42,11 +43,28 @@ bool Visualisation::init(){
 
 	SDL_Init(SDL_INIT_VIDEO);
 
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+
 	this->window = SDL_CreateWindow
 		(
 		this->windowTitle,
-		SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED_DISPLAY(0),
+		SDL_WINDOWPOS_UNDEFINED_DISPLAY(0),
+		this->windowWidth,
+		this->windowHeight,
+		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL //| SDL_WINDOW_BORDERLESS
+		);
+
+	this->window_2 = SDL_CreateWindow
+		(
+		"window 2",
+		SDL_WINDOWPOS_UNDEFINED_DISPLAY(1),
+		SDL_WINDOWPOS_UNDEFINED_DISPLAY(1),
 		this->windowWidth,
 		this->windowHeight,
 		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL //| SDL_WINDOW_BORDERLESS
@@ -56,24 +74,25 @@ bool Visualisation::init(){
 		printf("window failed to init");
 		result = false;
 	}
+	if (this->window_2 == NULL){
+		printf("window 2 failed to init");
+		result = false;
+	}
 	else {
 		SDL_GetWindowPosition(window, &this->windowedBounds.x, &this->windowedBounds.y);
 		SDL_GetWindowSize(window, &this->windowedBounds.w, &this->windowedBounds.h);
 
-		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-
-
-		
 		// Get context
 		this->context = SDL_GL_CreateContext(window);
 
 		// Init glew.
+		glewExperimental = GL_TRUE;
+
 		GLenum err = glewInit();
+		printf("glcheck: %d %s\n", glGetError(), glGetString(GL_VERSION));
+		fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+
+
 		if (GLEW_OK != err)
 		{
 			/* Problem: glewInit failed, something is seriously wrong. */
@@ -104,6 +123,7 @@ bool Visualisation::init(){
 
 		// Setup the projection matrix
 		this->resizeWindow();
+		this->resizeWindow_2();
 	}
 	return result;
 }
@@ -121,6 +141,8 @@ void Visualisation::handleKeypress(SDL_Keycode keycode, int x, int y){
 		this->vechShaders->reloadShaders();
 		this->envShaders->reloadShaders();
 		break;
+	case SDLK_F1:
+		this->window0Active = !this->window0Active;
 	default:
 		// Do nothing?
 		break;
@@ -132,7 +154,10 @@ void Visualisation::handleKeypress(SDL_Keycode keycode, int x, int y){
 void Visualisation::close(){
 	SDL_GL_DeleteContext(this->context);
 	SDL_DestroyWindow(this->window);
+	SDL_DestroyWindow(this->window_2);
 	this->window = NULL;
+	this->window_2 = NULL;
+
 	SDL_Quit();
 }
 
@@ -149,24 +174,49 @@ void Visualisation::run(){
 
 			// Handle continues press keys (movement)
 			const Uint8 *state = SDL_GetKeyboardState(NULL);
-			if (state[SDL_SCANCODE_W]) {
-				this->camera.move(-DELTA_MOVE);
+			// super crude window control toggling. @todo - make tidier.
+			if (this->window0Active){
+				if (state[SDL_SCANCODE_W]) {
+					this->camera.move(-DELTA_MOVE);
+				}
+				if (state[SDL_SCANCODE_A]) {
+					this->camera.strafe(-DELTA_STRAFE);
+				}
+				if (state[SDL_SCANCODE_S]) {
+					this->camera.move(DELTA_MOVE);
+				}
+				if (state[SDL_SCANCODE_D]) {
+					this->camera.strafe(DELTA_STRAFE);
+				}
+				if (state[SDL_SCANCODE_SPACE]) {
+					this->camera.ascend(DELTA_ASCEND);
+				}
+				if (state[SDL_SCANCODE_LCTRL]) {
+					this->camera.ascend(-DELTA_ASCEND);
+				}
 			}
-			if (state[SDL_SCANCODE_A]) {
-				this->camera.strafe(-DELTA_STRAFE);
+			else {
+				if (state[SDL_SCANCODE_W]) {
+					this->camera_2.move(-DELTA_MOVE);
+				}
+				if (state[SDL_SCANCODE_A]) {
+					this->camera_2.strafe(-DELTA_STRAFE);
+				}
+				if (state[SDL_SCANCODE_S]) {
+					this->camera_2.move(DELTA_MOVE);
+				}
+				if (state[SDL_SCANCODE_D]) {
+					this->camera_2.strafe(DELTA_STRAFE);
+				}
+				if (state[SDL_SCANCODE_SPACE]) {
+					this->camera_2.ascend(DELTA_ASCEND);
+				}
+				if (state[SDL_SCANCODE_LCTRL]) {
+					this->camera_2.ascend(-DELTA_ASCEND);
+				}
 			}
-			if (state[SDL_SCANCODE_S]) {
-				this->camera.move(DELTA_MOVE);
-			}
-			if (state[SDL_SCANCODE_D]) {
-				this->camera.strafe(DELTA_STRAFE);
-			}
-			if (state[SDL_SCANCODE_SPACE]) {
-				this->camera.ascend(DELTA_ASCEND);
-			}
-			if (state[SDL_SCANCODE_LCTRL]) {
-				this->camera.ascend(-DELTA_ASCEND);
-			}
+
+
 			
 
 			// handle each event on the queue
@@ -200,9 +250,16 @@ void Visualisation::run(){
 			// update
 			this->scene->update();
 			// render
-			this->scene->render(this->frustum);
+			SDL_GL_MakeCurrent(window, this->context);
+			this->scene->render(this->frustum, this->camera.view());
 			// update the screen
 			SDL_GL_SwapWindow(window);
+
+			// render 2
+			SDL_GL_MakeCurrent(window_2, this->context);
+			this->scene->render(this->frustum_2, this->camera_2.view());
+			// update the screen
+			SDL_GL_SwapWindow(window_2);
 		}
 		SDL_StopTextInput();
 
@@ -280,9 +337,40 @@ void Visualisation::resizeWindow(){
 
 }
 
+void Visualisation::resizeWindow_2(){
+	// Use the sdl drawable size
+	int width;
+	int height;
+
+	SDL_GL_GetDrawableSize(this->window_2, &width, &height);
+
+	double fAspect = (double)width / (double)height;
+	double fovy = FOVY;
+
+	glViewport(0, 0, width, height);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	double top = tan(math_helper::toRadians(fovy * 0.5)) * NEAR_CLIP;
+	double bottom = -top;
+	double left = fAspect * bottom;
+	double right = fAspect * top;
+	//glFrustum(left, right, bottom, top, NEAR_CLIP, FAR_CLIP);
+	this->frustum_2 = glm::frustum(left, right, bottom, top, NEAR_CLIP, FAR_CLIP);
+	//gluPerspective(fovy, fAspect, NEAR_CLIP, FAR_CLIP);
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
+
+}
+
 void Visualisation::handleMouseMove(int x, int y){
 	if (SDL_GetRelativeMouseMode()){
-		this->camera.updateThetaPhi(-x * MOUSE_SPEED, -y * MOUSE_SPEED);
+		if (this->window0Active){
+			this->camera.updateThetaPhi(-x * MOUSE_SPEED, -y * MOUSE_SPEED);
+		}
+		else {
+			this->camera_2.updateThetaPhi(-x * MOUSE_SPEED, -y * MOUSE_SPEED);
+		}
+		
 	}
 }
 

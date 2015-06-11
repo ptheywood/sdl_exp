@@ -34,7 +34,7 @@ VisualisationScene::VisualisationScene(Camera* camera, Shaders* vechShaders, Sha
 		for (int j = 0; j < agentsPerRow; ++j){
 			int index = (i*agentsPerRow) + j;
 			agentLocationData[index][0] = agentOffsetPerRoad + (ENV_NODE_OFFSET * i);
-			agentLocationData[index][1] = 0;
+			agentLocationData[index][1] = -10;
 			agentLocationData[index][2] =  (ENV_NODE_OFFSET * j);
 			agentLocationData[index][3] = i % 3;
 		}
@@ -88,12 +88,12 @@ void VisualisationScene::update(){
 	}*/
 }
 
-void VisualisationScene::render(glm::mat4 projection){
+void VisualisationScene::render(glm::mat4 projection, glm::mat4 view){
 	glClearColor(0, 0, 0, 1);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glLoadIdentity();
-	glm::mat4 view = this->camera->view();
+	//glm::mat4 view = this->camera->view();
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 modelview = view *  model;
 	//glm::mat4 mvp = projection * view * model; // reverse order is needed.

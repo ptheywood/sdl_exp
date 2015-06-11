@@ -20,7 +20,7 @@ public:
 	~VisualisationScene();
 
 	void update();
-	void render(glm::mat4 projection);
+	void render(glm::mat4 projection, glm::mat4 view);
 
 private:
 	Camera* camera;
