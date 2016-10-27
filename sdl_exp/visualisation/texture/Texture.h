@@ -16,8 +16,8 @@ class Texture
 public:
     virtual void reload() = 0;
     //void createTextureBufferObject(GLuint *tbo, GLuint *texture, GLuint size);
-    //void deleteTextureBufferObject(GLuint *tbo); 
-    
+    //void deleteTextureBufferObject(GLuint *tbo);
+
     bool bindToShader(Shaders *s, char *uniformName = 0);
 protected:
     Texture(GLenum type, const char *texPath = 0, char *uniformName = 0);
@@ -27,7 +27,7 @@ protected:
     GLuint texName;
     const GLenum texType;
 private:
-    static SDL_Surface *Texture::findImage(const char *imagePath);
+    static SDL_Surface *findImage(const char *imagePath);
     char *uniformName;
     void createGLTex();
     void deleteGLTex();

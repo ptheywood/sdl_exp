@@ -53,7 +53,7 @@ void Texture::deleteGLTex()
     if (texName)
     {
         GL_CALL(glDeleteTextures(1, &texName));//Invalid operation?
-        texName = 0;        
+        texName = 0;
     }
 }
 /*
@@ -66,13 +66,13 @@ SDL_Surface *Texture::findImage(const char *imagePath)
     if (!imagePath)
         return 0;
     SDL_Surface *image=0;
-    for (int i = 0; i < sizeof(IMAGE_EXTS) / sizeof(char*);i++)
+    for (unsigned int i = 0; i < sizeof(IMAGE_EXTS) / sizeof(char*);i++)
     {
         image = IMG_Load(std::string(imagePath).append(IMAGE_EXTS[i]).c_str());
         if (image)
         {
-            SDL_ClearError();//Clear the img errorS  
-            break;          
+            SDL_ClearError();//Clear the img errorS
+            break;
         }
     }
     return image;

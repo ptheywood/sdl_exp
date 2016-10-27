@@ -32,7 +32,7 @@ void TextureCubeMap::reload() { _reload(); }
 void TextureCubeMap::_reload()
 {
     SDL_Surface *image;
-    for (int i = 0; i < sizeof(FACES) / sizeof(CubeMapParts); i++)
+    for (unsigned int i = 0; i < sizeof(FACES) / sizeof(CubeMapParts); i++)
     {
         image = readImage(std::string(texturePath).append(FACES[i].name).c_str());
         setTexture(image, FACES[i].target);

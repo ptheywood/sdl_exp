@@ -6,24 +6,24 @@ Constructor, modify this to change what happens
 */
 EntityScene::EntityScene(Visualisation &visualisation)
     : Scene(visualisation)
-    , deerModel(new Entity(Stock::Models::DEER, 10.0f, Stock::Shaders::TEXTURE))
-    , colorModel(new Entity(Stock::Models::ROTHWELL, 45.0f, Stock::Shaders::COLOR))
-    , tick(0.0f)
-    , polarity(-1)
-    , instancedSphere(new Entity(Stock::Models::ICOSPHERE, 1.0f, Stock::Shaders::INSTANCED))
 #ifdef __CUDACC__
     , cuTexBuf(mallocGLInteropTextureBuffer<float>(100, 3))
     , texBuf("_texBuf", cuTexBuf, true)
 #else
     , texBuf("_texBuf", 100, 3)
 #endif
+    , instancedSphere(new Entity(Stock::Models::ICOSPHERE, 1.0f, Stock::Shaders::INSTANCED))
+    , deerModel(new Entity(Stock::Models::DEER, 10.0f, Stock::Shaders::TEXTURE))
+    , colorModel(new Entity(Stock::Models::ROTHWELL, 45.0f, Stock::Shaders::COLOR))
+    , tick(0.0f)
+    , polarity(-1)
 {
     registerEntity(deerModel);
     registerEntity(colorModel);
     registerEntity(instancedSphere);
     this->visualisation.setSkybox(true);
     this->visualisation.setWindowTitle("Entity Render Sample");
-    this->visualisation.setRenderAxis(true); 
+    this->visualisation.setRenderAxis(true);
     srand((unsigned int)time(0));
     this->colorModel->setRotation(glm::vec4(1.0, 0.0, 0.0, -90));
     this->colorModel->setCullFace(false);
@@ -45,7 +45,7 @@ EntityScene::EntityScene(Visualisation &visualisation)
     this->instancedSphere->setColor(glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX));
 }
 /*
-Called once per frame when Scene animation calls should be 
+Called once per frame when Scene animation calls should be
 @param Milliseconds since last time this method was called
 */
 void EntityScene::update(unsigned int frameTime)

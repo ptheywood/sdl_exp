@@ -12,12 +12,21 @@ namespace Stock
     */
     namespace Font
     {
+#ifdef _WIN32
         const char* ARIAL = "C:/Windows/Fonts/Arial.ttf";
         const char* LUCIDIA_CONSOLE = "C:/Windows/Fonts/lucon.TTF";
         const char* SEGOE_UI = "C:/Windows/Fonts/segoeui.ttf";
         const char* JOKERMAN = "C:/Windows/Fonts/JOKERMAN.TTF";
         const char* TIMES_NEW_ROMAN = "C:/Windows/Fonts/times.ttf";
         const char* VIVALDI = "C:/Windows/Fonts/VIVALDII.TTF";
+#else
+        const char* ARIAL = "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf";
+        const char* LUCIDIA_CONSOLE = "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf";
+        const char* SEGOE_UI = "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf";
+        const char* JOKERMAN = "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf";
+        const char* TIMES_NEW_ROMAN = "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf";
+        const char* VIVALDI = "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf";
+#endif
     };
 };
 /*
@@ -41,22 +50,23 @@ Creates a text overlay with the provided string
 */
 Text::Text(const char *_string, unsigned int fontHeight, glm::vec4 color, char const *fontFile, unsigned int faceIndex)
 	: Overlay(std::make_shared<Shaders>(Stock::Shaders::TEXT))
-	, padding(5)
-    , lineSpacing(-0.1f)
-    , color(color)
-    , backgroundColor(0.0f)
-    , library()
-    , font()
-    , string(0)
-    , fontHeight(fontHeight)
-    , wrapDistance(800)
-    , printMono(false)
-    , tex(std::make_unique<TextureString>())
+  , printMono(false)
+  , padding(5)
+  , lineSpacing(-0.1f)
+  , color(color)
+  , backgroundColor(0.0f)
+  , library()
+  , font()
+  , string(0)
+  , fontHeight(fontHeight)
+  , wrapDistance(800)
+  , tex(std::make_unique<TextureString>())
 {
     getShaders()->addDynamicUniform("_col", glm::value_ptr(this->color), 4);
     getShaders()->addDynamicUniform("_backCol", glm::value_ptr(this->backgroundColor), 4);
     if (!fontFile)
         fontFile = Stock::Font::ARIAL;
+
     FT_Error error = FT_Init_FreeType(&library);
     if (error)
     {
@@ -136,7 +146,7 @@ void Text::recomputeTex() {
 
     //First load and position all glyphs on a straight line
     TGlyph *glyphs = (TGlyph *)malloc(stringLen*sizeof(TGlyph));   /* glyph image    */
-    unsigned int glyphPtr = 0;
+    // unsigned int glyphPtr = 0;
     bool use_kerning = FT_HAS_KERNING(font)!=0;
     unsigned int previous = 0;
 
@@ -157,7 +167,7 @@ void Text::recomputeTex() {
         }
         glyphs[i].pos.x = penX * 64;
         glyphs[i].pos.y = penY * 64;
-        
+
         error = FT_Load_Glyph(font, glyphs[i].index, FT_LOAD_TARGET_LIGHT|FT_LOAD_FORCE_AUTOHINT);//FT_LOAD_DEFAULT, FT_LOAD_TARGET_LIGHT
         if (error) continue;
 
@@ -165,8 +175,8 @@ void Text::recomputeTex() {
         if (error) continue;
 
         /* translate the glyph image now */
-        FT_Glyph_Transform(glyphs[i].image, 0, &glyphs[i].pos); 
-        
+        FT_Glyph_Transform(glyphs[i].image, 0, &glyphs[i].pos);
+
         penX += font->glyph->advance.x >> 6;
         previous = glyphs[i].index;
         i++;
@@ -254,7 +264,7 @@ void Text::recomputeTex() {
 
         if (glyph_bbox.yMax > bbox.yMax)
             bbox.yMax = glyph_bbox.yMax;
-    }  
+    }
     if (bbox.xMin > bbox.xMax)
     {
         fprintf(stderr,"unknown err, bounding box incorrect");

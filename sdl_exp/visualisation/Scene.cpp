@@ -13,7 +13,6 @@ Scene::Scene(Visualisation &visualisation)
 Calls the destructor
 */
 void Scene::kill(){
-    delete this;
 }
 /*
 Registers an entity, so the scene can manage it's modelview and projection matrices and reloads

@@ -1,6 +1,6 @@
 #ifndef __Sprite2D_h__
 #define __Sprite2D_h__
-#include "Texture/Texture2D.h"
+#include "texture/Texture2D.h"
 #include "Overlay.h"
 
 /*

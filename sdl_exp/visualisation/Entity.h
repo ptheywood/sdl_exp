@@ -59,7 +59,7 @@ public:
         float modelScale,
         std::shared_ptr<Shaders> shaders = std::shared_ptr<Shaders>(nullptr),
         std::shared_ptr<Texture> texture = std::shared_ptr<Texture2D>(nullptr)
-        ); 
+        );
     virtual ~Entity();
     virtual void render();
     void renderInstances(int count);
@@ -110,7 +110,7 @@ private:
     void importModel(const char *path);
     struct ExportMask
     {
-        unsigned char FILE_TYPE_FLAG;
+        unsigned char FT_FLAG;
         unsigned char VERSION_FLAG;
         unsigned char SIZE_OF_FLOAT;
         unsigned char SIZE_OF_UINT;
@@ -126,7 +126,7 @@ private:
         unsigned int  FILE_HAS_FACES_3 : 1;
         unsigned int  RESERVED_SPACE : 32;
     };
-    const static unsigned char FILE_TYPE_FLAG = 0x12;
-    const static unsigned char FILE_TYPE_VERSION = 1;
+    // const static unsigned char FILE_TYPE_FLAG;
+    // const static unsigned char FILE_TYPE_VERSION;
 };
 #endif //ifndef __Entity_h__

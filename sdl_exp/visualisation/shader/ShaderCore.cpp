@@ -134,7 +134,7 @@ void ShaderCore::setupBindings()
 	{
 		GLuint location = GL_CALL(glGetProgramResourceIndex(this->programId, d.type, d.nameInShader));
 		if (location != GL_INVALID_INDEX)
-		{			
+		{
 			auto rtn = buffers.emplace(location, d);
 			if (!rtn.second)fprintf(stderr,"Somehow a buffer was bound twice.");
 		}
@@ -240,9 +240,9 @@ int ShaderCore::addTextureUniform(GLuint texture, char *uniformName, GLenum type
 		else
 			++a;
 	}
-	//Find the first free key	
+	//Find the first free key
 	GLint bufferId = 0;
-	for (bufferId; bufferId <= (GLint)textures.size();++bufferId)
+	for (; bufferId <= (GLint)textures.size();++bufferId)
 	{
 		//If bufferId doesn't exist, break
 		if (textures.count(bufferId) == 0)
@@ -496,7 +496,7 @@ std::pair<int, GLenum> ShaderCore::findAttribute(const char *attributeName, cons
 	return  std::pair<int, GLenum>(-1, 0);
 }
 //Util
-int ShaderCore::compileShader(const GLuint t_shaderProgram, GLenum type, std::vector<const std::string> *shaderSourceFiles)
+int ShaderCore::compileShader(const GLuint t_shaderProgram, GLenum type, std::vector<std::string> *shaderSourceFiles)
 {
 	if (shaderSourceFiles->size() == 0) return false;
 	// Load shader files
@@ -633,7 +633,7 @@ unsigned int ShaderCore::findShaderVersion(std::vector<const char*> shaderSource
 }
 //_WIN32 is defined for both x86 and x64
 //https://msdn.microsoft.com/en-us/library/b0084kay.aspx
-#ifdef _WIN32 
+#ifdef _WIN32
 struct MatchPathSeparator
 {
 	bool operator()(char ch) const
@@ -650,7 +650,7 @@ struct MatchPathSeparator
 	}
 };
 #endif
-std::string ShaderCore::getFilenameFromPath(const std::string &filePath)
+std::string ShaderCore::getFilenameFromPath(std::string &filePath)
 {
 	std::string pathname(filePath);
 	std::string result = std::string(
@@ -659,15 +659,15 @@ std::string ShaderCore::getFilenameFromPath(const std::string &filePath)
 		pathname.end());
 	return result;
 }
-std::string ShaderCore::removeFileExt(const std::string &filename)
+std::string ShaderCore::removeFileExt(std::string &filename)
 {
 	size_t lastdot = filename.find_last_of(".");
 	if (lastdot == std::string::npos) return filename;
 	return filename.substr(0, lastdot);
 }
-std::vector<const std::string> *ShaderCore::buildFileVector(std::initializer_list <const char *> sources)
+std::vector<std::string> *ShaderCore::buildFileVector(std::initializer_list <const char *> sources)
 {
-	std::vector<const std::string> *rtn = new std::vector<const std::string>();
+	std::vector<std::string> *rtn = new std::vector<std::string>();
 
 	for (auto i : sources)
 	{

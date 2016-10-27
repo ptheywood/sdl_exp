@@ -19,8 +19,8 @@ public:
 	unsigned int getWidth() const
 	{ return width; };
 	unsigned int getHeight() const
-	{ return height; }; 
-	std::shared_ptr<Shaders> Overlay::getShaders() const
+	{ return height; };
+	std::shared_ptr<Shaders> getShaders() const
 	{ return shaders; }
     void setVisible(bool isVisible);
     bool getVisible() const
@@ -31,11 +31,11 @@ protected:
 	void setDimensions(unsigned int w, unsigned int h);
 	std::weak_ptr<HUD::Item> hudItem;
 private:
-    bool visible;
 	void setHUDItem(std::shared_ptr<HUD::Item> ptr);
 	std::shared_ptr<Shaders> shaders;
 	unsigned int width;
 	unsigned int height;
+	bool visible;
 };
 
 #endif //ifndef __Overlay_h__

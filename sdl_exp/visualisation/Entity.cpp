@@ -14,6 +14,8 @@
 
 const char *Entity::OBJ_TYPE = ".obj";
 const char *Entity::EXPORT_TYPE = ".obj.sdl_export";
+const static unsigned char FILE_TYPE_FLAG = 0x12;
+const static unsigned char FILE_TYPE_VERSION = 1;
 
 /*
 Convenience constructor.
@@ -70,20 +72,20 @@ Entity::Entity(
     std::shared_ptr<Shaders> shaders,
     std::shared_ptr<Texture> texture
     )
-    : positions(GL_FLOAT, 3, sizeof(float))
+    : shaders(shaders)
+    , texture(texture)
+    , SCALE(modelScale)
+    , modelPath(modelPath)
+    , vn_count(0)
+    , positions(GL_FLOAT, 3, sizeof(float))
     , normals(GL_FLOAT, NORMALS_SIZE, sizeof(float))
     , colors(GL_FLOAT, 3, sizeof(float))
     , texcoords(GL_FLOAT, 2, sizeof(float))
     , faces(GL_UNSIGNED_INT, FACES_SIZE, sizeof(unsigned int))
-    , vn_count(0)
-    , SCALE(modelScale)
-    , modelPath(modelPath)
     , material(0)
     , color(1, 0, 0, 1)
     , location(0.0f)
     , rotation(0.0f, 0.0f, 1.0f, 0.0f)
-    , shaders(shaders)
-    , texture(texture)
     , cullFace(true)
 {
     GL_CHECK();
@@ -663,7 +665,7 @@ exit_loop:;
             if (mtllib)
                 break;
             //Check for mtllib tag
-            for (int i = 1; i < (sizeof(mtllib_tag) / sizeof(c))-1; i++)
+            for (size_t i = 1; i < (sizeof(mtllib_tag) / sizeof(c))-1; i++)
             {
                 if ((c = fgetc(file)) != mtllib_tag[i])
                 {
@@ -701,7 +703,7 @@ exit_loop:;
             if (usemtl)
                 break;
             //Check for usemtl tag
-            for (int i = 1; i < (sizeof(usemtl_tag) / sizeof(c))-1; i++)
+            for (size_t i = 1; i < (sizeof(usemtl_tag) / sizeof(c))-1; i++)
             {
                 if ((c = fgetc(file)) != usemtl_tag[i])
                 {
@@ -738,7 +740,7 @@ exit_loop:;
         //Speed to the end of the line and begin next iteration
         while (c!='\n')
         {
-            lnLen++; 
+            lnLen++;
             c = fgetc(file);
             if (c == EOF)
                 goto exit_loop2;
@@ -765,7 +767,7 @@ exit_loop2:;
             (*vn_pairs)[VN_PAIR(((unsigned int *)faces.data)[i], 0, 0)] = UINT_MAX;
     }
     vn_count = (unsigned int)vn_pairs->size();
-    
+
     //Allocate instance vars from a single malloc
     unsigned int bufferSize = 0;
     bufferSize += vn_count*positions.components*positions.componentSize;
@@ -905,7 +907,7 @@ void Entity::loadMaterialFromFile(const char *objPath, const char *materialFilen
     while (!feof(file)) {
         if (fscanf(file, "%s", buffer) == 1){
             if (strcmp(buffer, MATERIAL_NAME_IDENTIFIER) == 0){
-                if (fscanf(file, "%s", &temp) == 1){
+                if (fscanf(file, "%s", (char*)&temp) == 1){
                     //this->material->materialName = temp; // @todo
                 }
                 else {
@@ -1164,7 +1166,7 @@ void Entity::importModel(const char *path)
     ExportMask mask;
     fread(&mask, sizeof(ExportMask), 1, file);
     //Check file type flag exists
-    if (mask.FILE_TYPE_FLAG != FILE_TYPE_FLAG)
+    if (mask.FT_FLAG != FILE_TYPE_FLAG)
     {
         fprintf(stderr, "FILE TYPE FLAG missing from file header: %s. Aborting import\n", importPath.c_str());
         fclose(file);
@@ -1186,17 +1188,17 @@ void Entity::importModel(const char *path)
     //Check float/uint lengths aren't too short
     if (sizeof(float) != mask.SIZE_OF_FLOAT)
     {
-        fprintf(stderr, "File %s uses floats of %i bytes, this architecture has floats of %i bytes. Aborting import\n", importPath.c_str(), mask.SIZE_OF_FLOAT, sizeof(float));
+        fprintf(stderr, "File %s uses floats of %i bytes, this architecture has floats of %lu bytes. Aborting import\n", importPath.c_str(), mask.SIZE_OF_FLOAT, sizeof(float));
         fclose(file);
         return;
     }
     if (sizeof(unsigned int) != mask.SIZE_OF_UINT)
     {
-        fprintf(stderr, "File %s uses uints of %i bytes, this architecture has floats of %i bytes. Aborting import\n", importPath.c_str(), mask.SIZE_OF_UINT, sizeof(unsigned));
+        fprintf(stderr, "File %s uses uints of %i bytes, this architecture has floats of %lu bytes. Aborting import\n", importPath.c_str(), mask.SIZE_OF_UINT, sizeof(unsigned));
         fclose(file);
         return;
     }
-    vn_count = mask.VN_COUNT;    
+    vn_count = mask.VN_COUNT;
     //Set components (sizes should be defaults)
     positions.components = mask.FILE_HAS_VERTICES_3 ? 3 : 4;
     normals.components = mask.FILE_HAS_NORMALS_3 ? 3 : NORMALS_SIZE;
@@ -1272,8 +1274,8 @@ void Entity::importModel(const char *path)
         };
     }
     //Check file footer contains flag (to confirm it was closed correctly
-    fread(&mask.FILE_TYPE_FLAG, sizeof(char), 1, file);
-    if (mask.FILE_TYPE_FLAG != FILE_TYPE_FLAG)
+    fread(&mask.FT_FLAG, sizeof(char), 1, file);
+    if (mask.FT_FLAG != FILE_TYPE_FLAG)
     {
 fprintf(stderr, "FILE TYPE FLAG missing from file footer: %s, model may be corrupt.\n", importPath.c_str());
 return;

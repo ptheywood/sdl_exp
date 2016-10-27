@@ -7,10 +7,9 @@ int main()
     //printf("fin");
     //getchar();
     Visualisation v = Visualisation("Visulisation Example", 1280, 720);
-    EntityScene *scene = new EntityScene(v);
-    
+    // EntityScene *scene = new EntityScene(v);
+
     v.run();
 
     return 0;
 }
-

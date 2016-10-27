@@ -2,7 +2,7 @@
 
 #include <sstream>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.inl>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "GLcheck.h"
 #include "Scene.h"
@@ -33,18 +33,18 @@ Creates a new window providing OpenGL functionality
 @param windowHeight The height of the contained graphics panel
 */
 Visualisation::Visualisation(char *windowTitle, int windowWidth = DEFAULT_WINDOW_WIDTH, int windowHeight = DEFAULT_WINDOW_HEIGHT)
-    : isInitialised(false)
+    : hud(windowWidth, windowHeight)
+    , camera(glm::vec3(50,50,50))
+    , scene(0)
+    , isInitialised(false)
     , continueRender(true)
+    , renderAxisState(false)
+    , msaaState(true)
+    , axis(25)
+    , skybox(0)
     , windowTitle(windowTitle)
     , windowWidth(windowWidth)
     , windowHeight(windowHeight)
-	, hud(windowWidth, windowHeight)
-    , camera(glm::vec3(50,50,50))
-    , renderAxisState(false)
-    , axis(25)
-    , msaaState(true)
-    , skybox(0)
-    , scene(0)
     , fpsDisplay(0)
 {
     this->isInitialised = this->init();
@@ -107,9 +107,9 @@ bool Visualisation::init(){
         if (swapIntervalResult == -1){
             printf("Swap Interval Failed: %s\n", SDL_GetError());
         }
-        
+
         GLEW_INIT();
-        
+
         // Setup gl stuff
         glEnable(GL_DEPTH_TEST);
         glCullFace(GL_BACK);
@@ -160,7 +160,7 @@ Provides key handling for none KEY_DOWN events of utility keys (ESC, F11, F10, F
 @note Unsure whether the mouse position is relative to the window
 */
 void Visualisation::handleKeypress(SDL_Keycode keycode, int x, int y){
-    //Pass key events to the scene and skip handling if false is returned 
+    //Pass key events to the scene and skip handling if false is returned
     if (scene&&!scene->keypress(keycode, x, y))
         return;
     switch (keycode){

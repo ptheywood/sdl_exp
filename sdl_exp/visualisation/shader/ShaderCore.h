@@ -7,6 +7,7 @@
 #include <map>
 #include <list>
 #include <glm/vec4.hpp>
+#include <cstring>
 /**
  * This class is is a wrapper for the core OpenGL shader operations
  * Uniforms, textures and buffers can be automatically bound using the addXXX() methods, so they are provided to the shader
@@ -242,7 +243,7 @@ private:
 	/**
 	 * Remembers a pointer to an array of upto 4 integers that will be updated everytime useProgram() is called on this Shaders object
 	 * @see addDynamicUniform(const char *,const GLfloat *, unsigned int)
-	 * @see addDynamicUniform(const char *,const GLint *, unsigned int) 
+	 * @see addDynamicUniform(const char *,const GLint *, unsigned int)
 	 */
 	bool addDynamicUniform(DynamicUniformDetail d);
 	/**
@@ -368,7 +369,7 @@ protected:
 	 * @param shaderSourceFiles An initialiser list ({a,b,c}) of paths to shader sources
 	 * @return The shader version detected, -1 on compilation failure
 	 */
-	int compileShader(const GLuint t_shaderProgram, GLenum type, std::vector<const std::string> *shaderSourceFiles);
+	int compileShader(const GLuint t_shaderProgram, GLenum type, std::vector<std::string> *shaderSourceFiles);
 	/**
 	 * Loads the text from the provided filepath
 	 * @return A pointer to the loaded shader source
@@ -385,7 +386,7 @@ protected:
 	* Copies the init list to a std::vector of std:strings on the heap
 	* @note You should delete the ptr returned by this yourself
 	*/
-	static std::vector<const std::string> *buildFileVector(std::initializer_list <const char *>);
+	static std::vector<std::string> *buildFileVector(std::initializer_list <const char *>);
 private:
 	/**
 	* Checks whether the specified shader compiled succesfully.
@@ -409,13 +410,13 @@ private:
 	 * @return The filename extracted from the string
 	 * @note This has operating system dependent behaviour, Linux consider \\ a valid path
 	 */
-	static std::string getFilenameFromPath(const std::string &filePath);
+	static std::string getFilenameFromPath(std::string &filePath);
 	/**
 	 * Returns the filename from the provided file path
 	 * @param filename A null terminated string holding a file name
 	 * @return The filename sans extension
 	 */
-	static std::string ShaderCore::removeFileExt(const std::string &filename);
+	static std::string removeFileExt(std::string &filename);
 };
 
 #endif //ifndef __ShaderCore_h__

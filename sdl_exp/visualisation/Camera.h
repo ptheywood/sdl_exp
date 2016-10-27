@@ -9,7 +9,7 @@ class Camera
 {
 public:
     Camera();
-    Camera(glm::vec3 eye); 
+    Camera(glm::vec3 eye);
     Camera(glm::vec3 eye, glm::vec3 target);
     ~Camera();
 
@@ -19,7 +19,7 @@ public:
     void ascend(float distance);
     void roll(float distance);
     void setStabilise(bool stabilise);
-    glm::mat4 view() const; 
+    glm::mat4 view() const;
     void gluLookAt();
     glm::mat4 skyboxView() const;
     void skyboxGluLookAt() const;
@@ -28,8 +28,8 @@ public:
     glm::vec3 getUp() const;
     glm::vec3 getPureUp() const;
     glm::vec3 getRight() const;
-    const glm::mat4 *Camera::getViewMatPtr() const;
-    const glm::mat4 *Camera::getSkyboxViewMatPtr() const;
+    const glm::mat4 *getViewMatPtr() const;
+    const glm::mat4 *getSkyboxViewMatPtr() const;
 private:
     void updateViews();
     //ModelView matrix

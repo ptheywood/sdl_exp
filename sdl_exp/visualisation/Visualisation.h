@@ -25,12 +25,12 @@ public:
     ~Visualisation();
 
     Scene *setScene(Scene *scene);
-    void Visualisation::render();
+    void render();
     void run(); // @todo - improve
 
     const char *getWindowTitle() const;
     void setWindowTitle(const char *windowTitle);
-    
+
     void quit();
     void toggleFullScreen();
     void toggleMouseMode();
@@ -40,8 +40,8 @@ public:
     void defaultProjection();
     void defaultLighting();
     void setRenderAxis(bool state);
-    void setMSAA(bool state); 
-    void Visualisation::setSkybox(bool state);
+    void setMSAA(bool state);
+    void setSkybox(bool state);
     const Camera *getCamera() const;
     const Scene *getScene() const;
 	const glm::mat4 *getFrustrumPtr() const override;
